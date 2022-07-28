@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.7.2</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>ch.hug</groupId>
+	<artifactId>mtp-generator</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+
+	<name>mtp-generator</name>
+	<description>Medication Treatment Plan Generator</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<java.version>17</java.version>
+		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+
+		<ipf-version>4.2.0</ipf-version> <!-- 4.0-SNAPSHOT  4.0-20200713 -->
+		<husky-version>2.0-CARA</husky-version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- import ipf dependencies -->
+			<dependency>
+				<groupId>org.openehealth.ipf</groupId>
+				<artifactId>ipf-dependencies</artifactId>
+				<version>${ipf-version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ehealth_connector.common</groupId>
+				<artifactId>ehealth_connector-common-gen</artifactId>
+				<version>${ehealth_connector-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ehealth_connector.common.ch</groupId>
+				<artifactId>ehealth_connector-common-ch</artifactId>
+				<version>${ehealth_connector-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openhealthtools.mdht.uml.cda.ch</groupId>
+				<artifactId>org.openhealthtools.mdht.uml.cda.ch</artifactId>
+				<version>${ehealth_connector-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- IPF -->
+		<dependency>
+			<groupId>org.openehealth.ipf.boot</groupId>
+			<artifactId>ipf-xds-spring-boot-starter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.tomcat.embed</groupId>
+					<artifactId>tomcat-embed-websocket</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.openehealth.ipf.platform-camel</groupId>
+			<artifactId>ipf-platform-camel-ihe-hl7v3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openehealth.ipf.boot</groupId>
+			<artifactId>ipf-atna-spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openehealth.ipf.modules</groupId>
+			<artifactId>ipf-modules-cda-mdht</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openehealth.ipf.commons</groupId>
+			<artifactId>ipf-commons-ihe-xua</artifactId>
+		</dependency>
+
+		<!-- eHealth Connector -->
+		<dependency>
+			<groupId>org.husky.emed.ch.cda</groupId>
+			<artifactId>husky-emed-ch-cda</artifactId>
+			<version>${husky-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.husky.communication</groupId>
+			<artifactId>husky-communication-ch</artifactId>
+			<version>${husky-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.husky.emed.ch.cda.validation</groupId>
+			<artifactId>husky-emed-ch-cda-validation</artifactId>
+			<version>${husky-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.husky.communication</groupId>
+			<artifactId>husky-xua-ch-impl</artifactId>
+			<version>${husky-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.husky.appc</groupId>
+			<artifactId>husky-appc-ch</artifactId>
+			<version>${husky-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+	</dependencies>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven2</id>
+			<url>https://repo.maven.apache.org/maven2/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+</project>
