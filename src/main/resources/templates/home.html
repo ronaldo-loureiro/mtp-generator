@@ -65,15 +65,19 @@
                     <div class="form-outline">
                         <h6 th:for="*{route_code}">Route code</h6>
                         <select th:field="*{route_code}" class="form-control border" >
+                            <option th:each="model : ${routeOfAdministrationAmbu}" th:value="${model}" th:text="${model}">
+                            </option>
                         </select>
                     </div>
                 </div>
             </div>
 
             <div class="form-outline col-md-6 col-xs-12 my-4">
+                <h6>Dose quantity unit</h6>
                 <select th:field="*{dose_quantity_unit}" class="form-control border" >
+                    <option th:each="model : ${regularUnitCodeAmbu}" th:value="${model}" th:text="${model}">
+                    </option>
                 </select>
-                <label class="form-label" th:for="*{dose_quantity_unit}">Dose quantity unit</label>
             </div>
 
             <div class="row">
@@ -130,15 +134,17 @@
         <div class="row my-4">
             <div class="col">
                 <div class="form-outline">
+                    <h6>Product name</h6>
                     <input type="text" th:field="*{product_name}" class="form-control border" required/>
-                    <label class="form-label" th:for="*{product_name}">Product name</label>
                 </div>
             </div>
             <div class="col">
                 <div class="form-outline">
+                    <h6>Form code</h6>
                     <select th:field="*{form_code}" class="form-control border" >
+                        <option th:each="model : ${pharmaceuticalDoseFormEdqm}" th:value="${model}" th:text="${model}">
+                        </option>
                     </select>
-                    <label class="form-label" th:for="*{form_code}">Form code</label>
                 </div>
             </div>
         </div>

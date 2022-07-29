@@ -1,10 +1,14 @@
 package ch.hug.mtpgenerator.models;
 
+import ch.hug.mtpgenerator.models.enums.DosageInstructionsEnums;
 import ch.hug.mtpgenerator.models.enums.MtpType;
 import ch.hug.mtpgenerator.models.enums.ProductCodeType;
 import lombok.Data;
+import org.husky.emed.ch.enums.PharmaceuticalDoseFormEdqm;
+import org.husky.emed.ch.enums.RegularUnitCodeAmbu;
+import org.husky.emed.ch.enums.RouteOfAdministrationAmbu;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 
 
@@ -15,14 +19,14 @@ public class MtpModel {
 
     private MtpType mtp_type;
 
-    private Optional<Date> start_date;
-    private Optional<Date> stop_date;
+    private Instant start_date;
+    private Instant stop_date;
 
-    private int repeat_number;
+    private Integer repeat_number;
 
-    private String route_code;
+    private RouteOfAdministrationAmbu route_code;
 
-    private String dose_quantity_unit;
+    private RegularUnitCodeAmbu dose_quantity_unit;
     private String dose_quantity_morning;
     private String dose_quantity_noon;
     private String dose_quantity_evening;
@@ -34,7 +38,7 @@ public class MtpModel {
 
     private String product_code;
     private String product_name;
-    private String form_code;
+    private PharmaceuticalDoseFormEdqm form_code;
 
     private Optional<String> fulfillment_instruction;
     private Optional<String> reason;
@@ -43,6 +47,8 @@ public class MtpModel {
     private boolean substitution_authorized;
 
     private Optional<String> amount_to_dispense;
+
+    private DosageInstructionsEnums dosage_instructions_type;
 
     public MtpModel() {
         this.mtp_type = MtpType.structured_instructions;
