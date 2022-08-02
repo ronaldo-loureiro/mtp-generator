@@ -10,8 +10,7 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet"/>
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.3.0/mdb.min.css" rel="stylesheet"/>
-    <!-- MDB -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.3.0/mdb.min.js"></script>
+
 
     <link rel="stylesheet" href="/style.scss"/>
 </head>
@@ -23,7 +22,7 @@
         <div class="row my-4">
             <div class="col">
                 <div class="form-outline">
-                    <input type="text" id="input-uuid" th:field="*{uuid}" class="form-control border" required/>
+                    <input type="text" id="input-uuid" th:field="*{uuid}" class="form-control" required/>
                     <label class="form-label" for="input-uuid">UUID</label>
                 </div>
             </div>
@@ -39,79 +38,62 @@
             <div class="row my-4">
                 <div class="col">
                     <div class="form-outline">
-                        <h6>Start Date (optional)</h6>
-                        <input type="date" th:field="*{start_date}" class="form-control border"/>
+                        <input type="date" th:field="*{start_date}" class="form-control"/>
+                        <label class="form-label" th:for="*{start_date}">Start Date (optional)</label>
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-outline">
-                        <h6>Stop Date (optional)</h6>
-                        <input type="date" th:field="*{stop_date}" class="form-control border"/>
+                        <input type="date" th:field="*{stop_date}" class="form-control"/>
+                        <label class="form-label" th:for="*{stop_date}">Stop Date (optional)</label>
                     </div>
                 </div>
             </div>
 
             <div class="row my-4">
                 <div class="col">
+                    <h6>Repeat number</h6>
                     <div class="form-outline">
-                        <h6>Repeat number</h6>
-                        <input type="number" th:field="*{repeat_number}" class="form-control border" min="-1"/>
-                        <div id="text-repeat-number" class="form-text">
-                            The value -1 refers to nullFlavor=NI
-                        </div>
+                        <input type="number" th:field="*{repeat_number}" class="form-control" min="-1"/>
+                    </div>
+                    <div id="text-repeat-number" class="form-text">
+                        The value -1 refers to nullFlavor=NI
                     </div>
                 </div>
                 <div class="col">
-                    <div class="form-outline">
-                        <h6 th:for="*{route_code}">Route code</h6>
-                        <select th:field="*{route_code}" class="form-control border" >
-                            <option th:each="model : ${routeOfAdministrationAmbu}" th:value="${model}" th:text="${model}">
+                    <h6 th:for="*{route_code}">Route code</h6>
+                    <div class="">
+                        <select th:field="*{route_code}" class="" >
+                            <option th:each="model : ${routeOfAdministrationAmbu}" th:value="${model}" th:text="${model.getDisplayName()}">
                             </option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <div class="form-outline col-md-6 col-xs-12 my-4">
+            <div class="col-md-6 col-xs-12 my-4">
                 <h6>Dose quantity unit</h6>
-                <select th:field="*{dose_quantity_unit}" class="form-control border" >
-                    <option th:each="model : ${regularUnitCodeAmbu}" th:value="${model}" th:text="${model}">
+                <select th:field="*{dose_quantity_unit}" class="" >
+                    <option th:each="model : ${regularUnitCodeAmbu}" th:value="${model}" th:text="${model.getDisplayName()}">
                     </option>
                 </select>
             </div>
 
             <div class="row">
                 <h6>Dose quantity</h6>
-                <div class="col">
+
+                <div class="col" th:each="dose : ${mtp.getDoses_quantity()}">
                     <div class="form-outline">
-                        <h6>Morning</h6>
-                        <input type="text" th:field="*{dose_quantity_morning}" class="form-control border"/>
+                        <input type="text" th:value="${dose.value}" th:field="${mtp.doses_quantity[__${dose.key}__]}" class="form-control"/>
+                        <label class="form-label" th:for="${mtp.doses_quantity[__${dose.key}__]}" th:text="${dose.key}"></label>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="form-outline">
-                        <h6>Noon</h6>
-                        <input type="text" th:field="*{dose_quantity_noon}" class="form-control border"/>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-outline">
-                        <h6>Evening</h6>
-                        <input type="text" th:field="*{dose_quantity_evening}" class="form-control border"/>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-outline">
-                        <h6>Night</h6>
-                        <input type="text" th:field="*{dose_quantity_night}" class="form-control border"/>
-                    </div>
-                </div>
             </div>
         </div>
 
         <div class="form-outline my-4" id="narrative-instructions-inputs" style="display: none;">
-            <textarea class="form-control border" th:field="*{narrative_instructions}" rows="4"></textarea>
+            <textarea class="form-control" th:field="*{narrative_instructions}" rows="4"></textarea>
             <label class="form-label" th:for="*{narrative_instructions}">Narrative instructions</label>
         </div>
 
@@ -125,7 +107,7 @@
 
             <div class="col">
                 <div class="form-outline">
-                    <input type="text" th:field="*{product_code}" class="form-control border" required/>
+                    <input type="text" th:field="*{product_code}" class="form-control" required/>
                     <label class="form-label" th:for="*{product_code}">Code</label>
                 </div>
             </div>
@@ -134,15 +116,15 @@
         <div class="row my-4">
             <div class="col">
                 <div class="form-outline">
-                    <h6>Product name</h6>
-                    <input type="text" th:field="*{product_name}" class="form-control border" required/>
+                    <input type="text" th:field="*{product_name}" class="form-control" required/>
+                    <label class="form-label">Product name</label>
                 </div>
             </div>
             <div class="col">
-                <div class="form-outline">
+                <div class="">
                     <h6>Form code</h6>
-                    <select th:field="*{form_code}" class="form-control border" >
-                        <option th:each="model : ${pharmaceuticalDoseFormEdqm}" th:value="${model}" th:text="${model}">
+                    <select th:field="*{form_code}" class="select" >
+                        <option th:each="model : ${pharmaceuticalDoseFormEdqm}" th:value="${model}" th:text="${model.getDisplayName()}">
                         </option>
                     </select>
                 </div>
@@ -150,12 +132,12 @@
         </div>
 
         <div class="form-outline my-4">
-            <textarea class="form-control border" th:field="*{fulfillment_instruction}" rows="4"></textarea>
+            <textarea class="form-control" th:field="*{fulfillment_instruction}" rows="4"></textarea>
             <label class="form-label" th:for="*{fulfillment_instruction}">Fulfillment instruction (optional)</label>
         </div>
 
         <div class="form-outline my-4">
-            <textarea class="form-control border" th:field="*{reason}" rows="4"></textarea>
+            <textarea class="form-control" th:field="*{reason}" rows="4"></textarea>
             <label class="form-label" th:for="*{reason}">Reason (optional)</label>
         </div>
 
@@ -177,8 +159,8 @@
         <div class="row my-4">
             <div class="col">
                 <div class="form-outline">
-                    <input type="text" th:field="*{amount_to_dispense}" class="form-control border"/>
-                    <label class="form-label" th:for="*{amount_to_dispense}">Amount to dispense</label>
+                    <input type="text" th:field="*{amount_to_dispense}" class="form-control"/>
+                    <label class="form-label" th:for="*{amount_to_dispense}">Amount to dispense (optional)</label>
                 </div>
             </div>
         </div>
@@ -190,6 +172,9 @@
         </div>
     </form>
 </div>
+
+<!-- MDB -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.3.0/mdb.min.js"></script>
 <script type="application/javascript" src="/js/home.js"></script>
 </body>
 </html>

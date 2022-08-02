@@ -15,10 +15,7 @@ import java.util.Optional;
 /**
  * Setter utilities for CDA-CH-EMED documents.
  *
- * @author Quentin Ligier
  * @see CdaR2Utils
- * @see CceGetters
- * @see CceCreators
  **/
 public class CceSetters {
 

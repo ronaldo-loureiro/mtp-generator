@@ -41,7 +41,6 @@
 		<java.version>17</java.version>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
 
-		<ipf-version>4.2.0</ipf-version> <!-- 4.0-SNAPSHOT  4.0-20200713 -->
 		<husky-version>2.0-CARA</husky-version>
 	</properties>
 
