@@ -8,11 +8,10 @@ import org.husky.common.enums.AdministrativeGender;
 import org.husky.common.enums.CodeSystems;
 import org.husky.common.enums.NullFlavor;
 import org.husky.common.hl7cdar2.*;
+import org.husky.common.model.Name;
+import org.husky.common.model.Person;
 import org.husky.common.utils.time.DateTimes;
-import org.husky.emed.ch.cda.generated.artdecor.CdachHeaderCustodian;
-import org.husky.emed.ch.cda.generated.artdecor.CdachHeaderInformationRecipient;
-import org.husky.emed.ch.cda.generated.artdecor.CdachHeaderPatient;
-import org.husky.emed.ch.cda.generated.artdecor.CdachOtherAuthor;
+import org.husky.emed.ch.cda.generated.artdecor.*;
 import org.husky.emed.ch.cda.validation.CdaChEmedValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,6 @@ import java.util.UUID;
 /**
  * Abstract generator of CDA-CH-EMED documents. It contains helper methods for the derived generators.
  *
- * @author Quentin Ligier
  */
 public abstract class GenericCdaDocumentGenerator<T extends POCDMT000040ClinicalDocument> {
     private static final Logger log = LoggerFactory.getLogger(GenericCdaDocumentGenerator.class);
@@ -174,18 +172,27 @@ public abstract class GenericCdaDocumentGenerator<T extends POCDMT000040Clinical
      */
     protected POCDMT000040Author author(final Instant authorshipInstant) {
         final var author = new CdachOtherAuthor();
-        author.setFunctionCode(ParticipationFunction.COMPOSER_SOFTWARE.getCE());
+        author.setFunctionCode(ParticipationFunction.PRIMARY_CARE_PHYSICIAN.getCE());
         author.setTime(DateTimes.toDatetimeTs(authorshipInstant));
 
         final POCDMT000040AssignedAuthor assignedAuthor = new POCDMT000040AssignedAuthor();
         assignedAuthor.getId().add(new II(CodeSystems.GLN.getCodeSystemId(), "7601002860123"));
 
-        final POCDMT000040AuthoringDevice authoringDevice = new POCDMT000040AuthoringDevice();
-        authoringDevice.setSoftwareName(new SC("CARA"));
-        authoringDevice.setManufacturerModelName(new SC("2.51.1.3"));
+        final POCDMT000040Person assignedPerson = new POCDMT000040Person();
+        PN name = new PN();
+        ObjectFactory objectFactory = new ObjectFactory();
+        name.getContent().add(objectFactory.createEnGiven(new EnGiven("Albus")));
+        name.getContent().add(objectFactory.createEnFamily(new EnFamily("Dumbledore")));
+        assignedPerson.getName().add(name);
+        assignedAuthor.setAssignedPerson(assignedPerson);
 
-        assignedAuthor.setAssignedAuthoringDevice(authoringDevice);
+        POCDMT000040Organization organization = new POCDMT000040Organization();
+        organization.getId().add(new II("2.51.1.3", "7601002729611"));
+        organization.getName().add(new ON("HUG"));
+
         author.setAssignedAuthor(assignedAuthor);
+        assignedAuthor.setRepresentedOrganization(organization);
+
         return author;
     }
 
@@ -196,7 +203,7 @@ public abstract class GenericCdaDocumentGenerator<T extends POCDMT000040Clinical
      */
     protected POCDMT000040Custodian custodian() {
         final POCDMT000040CustodianOrganization custodianOrganization = new POCDMT000040CustodianOrganization();
-        custodianOrganization.setName(new ON("Hausarzt", "L"));
+        custodianOrganization.setName(new ON("HUG"));
         custodianOrganization.getId().add(new II("2.51.1.3", "7601002729611"));
 
         final POCDMT000040AssignedCustodian assignedCustodian = new POCDMT000040AssignedCustodian();
@@ -219,7 +226,8 @@ public abstract class GenericCdaDocumentGenerator<T extends POCDMT000040Clinical
         informationRecipient.setHl7IntendedRecipient(intendedRecipient);
         final POCDMT000040Organization organization = new POCDMT000040Organization();
         intendedRecipient.setReceivedOrganization(organization);
-        organization.getName().add(new ON("Hausarzt", "L"));
+        organization.getName().add(new ON("CARA"));
+        organization.getId().add(new II("2.51.1.3", "7601001407428"));
 
         return informationRecipient;
     }

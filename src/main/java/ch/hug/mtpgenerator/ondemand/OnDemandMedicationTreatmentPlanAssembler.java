@@ -12,6 +12,7 @@ import org.husky.emed.ch.cda.generated.artdecor.*;
 import org.husky.emed.ch.cda.generated.artdecor.enums.MedicationDosageQualifier;
 import org.husky.emed.ch.cda.xml.CceDocumentMarshaller;
 import org.husky.emed.ch.enums.ActSubstanceAdminSubstitutionCode;
+import org.husky.emed.ch.enums.CceDocumentType;
 import org.openehealth.ipf.commons.ihe.xds.core.responses.RetrievedDocument;
 
 import javax.xml.bind.JAXBElement;
@@ -37,15 +38,19 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
         this.cceDocumentDigester = Objects.requireNonNull(cceDocumentDigester);
     }
 
-    public RetrievedDocument assemble(final MtpModel medicationTreatment) throws Exception {
+    public String assemble(final MtpModel medicationTreatment) throws Exception {
         final UUID mtpUniqueId = UUID.fromString("c11263f1-0001-0050-0001-000000000000");
         final var mtpDocument = this.createCceMtp(mtpUniqueId, medicationTreatment);
 
         final String mtpDocumentXml = CceDocumentMarshaller.marshall(mtpDocument);
 
-        System.out.println(mtpDocumentXml);
+        try {
+            this.cceStructureValidator.validate(mtpDocumentXml, CceDocumentType.MTP);
+        } catch (final Exception e) {
+            throw e;
+        }
 
-        return new RetrievedDocument();
+        return mtpDocumentXml;
     }
 
     MedicationTreatmentPlanDocument createCceMtp(final UUID documentUniqueId, MtpModel medicationTreatment) throws Exception {
@@ -60,27 +65,28 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
 
         final var section = new MedicationTreatmenPlanSectionContentModule();
         this.initializeCceDocumentBody(document, section);
+        section.setId(new II(documentUniqueId.toString()));
         section.setTitle(new ST("Plan de traitement médicamenteux", "fr-CH"));
 
         // Generate narrative text
         final var narrativeText = new StrucDocText();
-        final var narrativeTextId = "narrative";
+        final var narrativeTextId = "ref";
         narrativeText.setID(narrativeTextId);
-        narrativeText.getContent().add("See the PDF original representation");
+        narrativeText.getContent().add("No narrative provided yet.");
         CceSetters.narrativeText(document, narrativeText);
 
-        final var sa = new MedicationTreatmentPlanEntryContentModule();
-        sa.setMoodCode(XDocumentSubstanceMood.INT); // SPEC: get original
+        final var substanceAdministration = new MedicationTreatmentPlanEntryContentModule();
+        substanceAdministration.setMoodCode(XDocumentSubstanceMood.INT); // SPEC: get original
         switch (medicationTreatment.getDosageInstructionType()) {
-            case NORMAL, NARRATIVE -> sa.getTemplateId()
+            case NORMAL, NARRATIVE -> substanceAdministration.getTemplateId()
                     .add(MedicationTreatmentPlanEntryContentModule.getPredefinedTemplateId136141193761531471());
-            case SPLIT -> sa.getTemplateId()
+            case SPLIT -> substanceAdministration.getTemplateId()
                     .add(MedicationTreatmentPlanEntryContentModule.getPredefinedTemplateId13614119376153149());
             default -> throw new RuntimeException("The dosage instructions type is unknown");
         }
 
-        sa.setHl7Id(new II(documentUniqueId.toString(), null));
-        sa.setText(new ED(null, new TEL(narrativeTextId)));
+        substanceAdministration.setHl7Id(new II(documentUniqueId.toString(), null));
+        substanceAdministration.setText(new ED(null, new TEL("#" + narrativeTextId)));
 
         if (medicationTreatment.getDosageInstructionType() != NARRATIVE) {
             final var ivlts = new IVLTS();
@@ -117,7 +123,7 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
                     high
             ));
 
-            sa.getEffectiveTime().add(ivlts);
+            substanceAdministration.getEffectiveTime().add(ivlts);
         }
 
         final var repeatNumber = new IVLINT();
@@ -126,13 +132,13 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
         } else {
             repeatNumber.getNullFlavor().add("NI");
         }
-        sa.setRepeatNumber(repeatNumber);
+        substanceAdministration.setRepeatNumber(repeatNumber);
 
         if (medicationTreatment.getRoute_code() != null) {
-            sa.setRouteCode(medicationTreatment.getRoute_code().getCE());
+            substanceAdministration.setRouteCode(medicationTreatment.getRoute_code().getCE());
         }
 
-        sa.setConsumable(generateConsumable(medicationTreatment));
+        substanceAdministration.setConsumable(generateConsumable(medicationTreatment));
 
         switch (medicationTreatment.getDosageInstructionType()) {
             case NORMAL -> {
@@ -146,14 +152,14 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
                             "quantity");
                 }
 
-                sa.setDoseQuantity(new IVLPQ(timings.get(0).getValue(), medicationTreatment.getDose_quantity_unit().getCodeValue()));
+                substanceAdministration.setDoseQuantity(new IVLPQ(timings.get(0).getValue(), medicationTreatment.getDose_quantity_unit().getCodeValue()));
 
                 if (timings.size() == 1) {
                     final var eivlts = DosageInstructionsStartStopFrequency.getPredefinedEffectiveTimeA();
                     final var eivlEvent = new EIVLEvent();
                     eivlEvent.setCode(timings.get(0).getKey().getCodeValue());
                     eivlts.setEvent(eivlEvent);
-                    sa.getEffectiveTime().add(eivlts);
+                    substanceAdministration.getEffectiveTime().add(eivlts);
                 } else {
                     final var sxprts = new SXPRTS();
                     sxprts.setOperator(SetOperator.A);
@@ -167,7 +173,7 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
                         }
                         sxprts.getComp().add(eivlts);
                     }
-                    sa.getEffectiveTime().add(sxprts);
+                    substanceAdministration.getEffectiveTime().add(sxprts);
                 }
             }
             case SPLIT -> {
@@ -194,7 +200,7 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
 
                         sa2.setConsumable(this.createEmptyConsumable());
                         erDosageInstr.setSubstanceAdministration(sa2);
-                        sa.getEntryRelationship().add(erDosageInstr);
+                        substanceAdministration.getEntryRelationship().add(erDosageInstr);
                     }
                 }
             }
@@ -207,7 +213,7 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
                 final var erNarrative = new POCDMT000040EntryRelationship();
                 erNarrative.setTypeCode(XActRelationshipEntryRelationship.COMP);
                 erNarrative.setSubstanceAdministration(saNarrative);
-                sa.getEntryRelationship().add(erNarrative);
+                substanceAdministration.getEntryRelationship().add(erNarrative);
             }
         }
 
@@ -216,10 +222,10 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
             final var erTreatmentReason = new POCDMT000040EntryRelationship();
             erTreatmentReason.setTypeCode(XActRelationshipEntryRelationship.RSON);
             final var obsTreatmentReason = new TreatmentReasonEntryContentModule();
-            obsTreatmentReason.setText(new ED(medicationTreatment.getReason(), new TEL(narrativeTextId)));
+            obsTreatmentReason.setText(new ED(medicationTreatment.getReason(), new TEL("#" + narrativeTextId)));
             obsTreatmentReason.setStatusCode(new CS("completed"));
             erTreatmentReason.setObservation(obsTreatmentReason);
-            sa.getEntryRelationship().add(erTreatmentReason);
+            substanceAdministration.getEntryRelationship().add(erTreatmentReason);
         }
 
         // Fulfilment instructions
@@ -227,9 +233,13 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
             final var erFulfilmentInstructions = new POCDMT000040EntryRelationship();
             erFulfilmentInstructions.setTypeCode(XActRelationshipEntryRelationship.SUBJ);
             erFulfilmentInstructions.setInversionInd(true);
+
             final var actFulfilmentInstructions = new IhemedicationFulFillmentInstructions();
-            actFulfilmentInstructions.setText(new ED(medicationTreatment.getFulfillment_instruction(), new TEL(narrativeTextId)));
+            actFulfilmentInstructions.setText(new ED(medicationTreatment.getFulfillment_instruction(), new TEL("#" + narrativeTextId)));
+            actFulfilmentInstructions.setStatusCode(new CS("completed"));
+
             erFulfilmentInstructions.setAct(actFulfilmentInstructions);
+            substanceAdministration.getEntryRelationship().add(erFulfilmentInstructions);
         }
 
         // Quantity to dispense
@@ -242,7 +252,7 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
             final var qdEr = new POCDMT000040EntryRelationship();
             qdEr.setTypeCode(XActRelationshipEntryRelationship.COMP);
             qdEr.setSupply(qdSupply);
-            sa.getEntryRelationship().add(qdEr);
+            substanceAdministration.getEntryRelationship().add(qdEr);
         }
 
         // Substitution permissions
@@ -254,8 +264,7 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
         final var spEr = new POCDMT000040EntryRelationship();
         spEr.setTypeCode(XActRelationshipEntryRelationship.COMP);
         spEr.setAct(spAct);
-        sa.getEntryRelationship().add(spEr);
-
+        substanceAdministration.getEntryRelationship().add(spEr);
 
         // In reserve
         final var inReserve = (medicationTreatment.isIn_reserve()) ?
@@ -267,7 +276,11 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
         final var irEr = new POCDMT000040EntryRelationship();
         irEr.setTypeCode(XActRelationshipEntryRelationship.COMP);
         irEr.setAct(irAct);
-        sa.getEntryRelationship().add(irEr);
+        substanceAdministration.getEntryRelationship().add(irEr);
+
+        final var entry = new POCDMT000040Entry();
+        entry.setSubstanceAdministration(substanceAdministration);
+        section.setHl7Entry(entry);
 
         return document;
     }

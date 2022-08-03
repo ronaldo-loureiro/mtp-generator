@@ -52,9 +52,9 @@
 
             <div class="row my-4">
                 <div class="col">
-                    <h6>Repeat number</h6>
                     <div class="form-outline">
                         <input type="number" th:field="*{repeat_number}" class="form-control" min="-1"/>
+                        <label class="form-label" th:for="*{repeat_number}">Repeat number</label>
                     </div>
                     <div id="text-repeat-number" class="form-text">
                         The value -1 refers to nullFlavor=NI
@@ -171,6 +171,10 @@
             </div>
         </div>
     </form>
+
+    <div class="alert alert-danger" role="alert" data-mdb-color="danger" th:if="*{errorMessage != null}">
+        <i class="fas fa-times-circle me-3"></i>[[${errorMessage}]]
+    </div>
 </div>
 
 <!-- MDB -->
