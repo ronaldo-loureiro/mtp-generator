@@ -8,10 +8,11 @@ import org.husky.common.enums.AdministrativeGender;
 import org.husky.common.enums.CodeSystems;
 import org.husky.common.enums.NullFlavor;
 import org.husky.common.hl7cdar2.*;
-import org.husky.common.model.Name;
-import org.husky.common.model.Person;
 import org.husky.common.utils.time.DateTimes;
-import org.husky.emed.ch.cda.generated.artdecor.*;
+import org.husky.emed.ch.cda.generated.artdecor.CdachHeaderCustodian;
+import org.husky.emed.ch.cda.generated.artdecor.CdachHeaderInformationRecipient;
+import org.husky.emed.ch.cda.generated.artdecor.CdachHeaderPatient;
+import org.husky.emed.ch.cda.generated.artdecor.CdachOtherAuthor;
 import org.husky.emed.ch.cda.validation.CdaChEmedValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,6 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -118,8 +117,8 @@ public abstract class GenericCdaDocumentGenerator<T extends POCDMT000040Clinical
 
         final var patientRole = new POCDMT000040PatientRole();
         final var ii = new II();
-        ii.setRoot("2.998");
-        ii.setExtension(patientMpiPid);
+        ii.setRoot(patientMpiPid);
+        ii.setExtension("11111111");
 
         patientRole.getId().add(ii);
 

@@ -8,9 +8,7 @@ import org.husky.emed.ch.enums.PharmaceuticalDoseFormEdqm;
 import org.husky.emed.ch.enums.RegularUnitCodeAmbu;
 import org.husky.emed.ch.enums.RouteOfAdministrationAmbu;
 import org.husky.emed.ch.enums.TimingEventAmbu;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.Instant;
 import java.util.*;
 
 
@@ -19,55 +17,55 @@ public class MtpModel {
 
     private String uuid;
 
-    private MtpType mtp_type;
+    private MtpType mtpType;
 
-    private String start_date;
-    private String stop_date;
+    private String startDate;
+    private String stopDate;
 
-    private Integer repeat_number;
+    private Integer repeatNumber;
 
-    private RouteOfAdministrationAmbu route_code;
+    private RouteOfAdministrationAmbu routeCode;
 
-    private RegularUnitCodeAmbu dose_quantity_unit;
+    private RegularUnitCodeAmbu doseQuantityUnit;
 
-    private Map<TimingEventAmbu, String> doses_quantity;
+    private Map<TimingEventAmbu, String> dosesQuantity;
 
-    private String narrative_instructions;
+    private String narrativeInstructions;
 
-    private ProductCodeType product_code_type;
+    private ProductCodeType productCodeType;
 
-    private String product_code;
-    private String product_name;
-    private PharmaceuticalDoseFormEdqm form_code;
+    private String productCode;
+    private String productName;
+    private PharmaceuticalDoseFormEdqm formCode;
 
-    private String fulfillment_instruction;
+    private String fulfillmentInstruction;
     private String reason;
 
-    private boolean in_reserve;
-    private boolean substitution_authorized;
+    private boolean inReserve;
+    private boolean substitutionAuthorized;
 
-    private String amount_to_dispense;
+    private String amountToDispense;
 
     public MtpModel() {
-        this.mtp_type = MtpType.structured_instructions;
-        this.repeat_number = 0;
+        this.mtpType = MtpType.structured_instructions;
+        this.repeatNumber = 0;
 
-        this.doses_quantity = new LinkedHashMap<>();
-        this.doses_quantity.put(TimingEventAmbu.MORNING, "0");
-        this.doses_quantity.put(TimingEventAmbu.NOON, "0");
-        this.doses_quantity.put(TimingEventAmbu.EVENING, "0");
-        this.doses_quantity.put(TimingEventAmbu.NIGHT, "0");
+        this.dosesQuantity = new LinkedHashMap<>();
+        this.dosesQuantity.put(TimingEventAmbu.MORNING, "0");
+        this.dosesQuantity.put(TimingEventAmbu.NOON, "0");
+        this.dosesQuantity.put(TimingEventAmbu.EVENING, "0");
+        this.dosesQuantity.put(TimingEventAmbu.NIGHT, "0");
 
-        this.product_code_type = ProductCodeType.GTIN;
-        this.in_reserve = false;
-        this.substitution_authorized = true;
+        this.productCodeType = ProductCodeType.GTIN;
+        this.inReserve = false;
+        this.substitutionAuthorized = true;
 
     }
 
     public DosageInstructionsEnums getDosageInstructionType() {
-        return switch (this.getMtp_type()) {
+        return switch (this.getMtpType()) {
             case structured_instructions -> {
-                List<String> dosage_quantity = this.getDoses_quantity().values().stream()
+                List<String> dosage_quantity = this.getDosesQuantity().values().stream()
                         .filter(q -> !q.equals("0"))
                         .distinct()
                         .toList();

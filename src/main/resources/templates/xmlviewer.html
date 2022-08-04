@@ -14,14 +14,18 @@
     <!-- highlight.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/atom-one-light.min.css">
 
-    <link rel="stylesheet" href="/style.scss"/>
+    <link rel="stylesheet" href="/style.css"/>
 </head>
 <body>
-<h1 class="text-center">MTP generated</h1>
 
-<div class="container">
+<div class="container my-4">
+    <h1 class="text-center">MTP generated</h1>
     <div class="col-12 text-center">
         <div class="btn-group my-4" role="group">
+            <a type="button" class="btn btn-outline-primary" data-mdb-toggle="tooltip" data-mdb-placement="top"
+                    title="New MTP" href="/">
+                <i class="fas fa-plus"></i>
+            </a>
             <button type="button" class="btn btn-outline-primary" data-mdb-toggle="tooltip" data-mdb-placement="top"
                     title="Copy to clipboard" onclick="btnCopyToClipboardClick(this, 'xmlview')">
                 <i class="far fa-copy"></i>
@@ -36,13 +40,15 @@
                     <i class="fas fa-file-download"></i>
                 </button>
             </div>
-
         </div>
     </div>
 
     <pre><code class="language-xml" id="xmlview" th:text="${cdaXmlMtp}" th:value="${cdaXmlMtp}"></code></pre>
 </div>
 
+<a role="button" class="btn btn-outline-primary btn-floating scroll-top-button" href="#">
+    <i class="fas fa-angle-double-up"></i>
+</a>
 
 <!-- MDB -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.3.0/mdb.min.js"></script>

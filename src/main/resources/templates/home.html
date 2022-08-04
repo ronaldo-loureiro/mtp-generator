@@ -12,10 +12,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.3.0/mdb.min.css" rel="stylesheet"/>
 
 
-    <link rel="stylesheet" href="/style.scss"/>
+    <link rel="stylesheet" href="/style.css"/>
 </head>
 <body>
-<div class="container">
+<div class="container my-4">
     <h1 class="text-center">MTP-Generator</h1>
 
     <form action="#" th:action="@{/mtp}" th:object="${mtp}" method="post">
@@ -28,8 +28,20 @@
             </div>
             <div class="col text-center">
                 <div class="form-check form-check-inline" th:each="model : ${T(ch.hug.mtpgenerator.models.enums.MtpType).values()}">
-                    <input class="form-check-input" type="radio" th:field="*{mtp_type}" th:value="${model}" th:onclick="'changeMtpType(this.value);'"/>
-                    <label class="form-check-label" th:for="${#ids.prev('mtp_type')}" th:text="${model}"></label>
+                    <input class="form-check-input" type="radio" th:field="*{mtpType}" th:value="${model}" th:onclick="'changeMtpType(this.value);'"/>
+                    <label class="form-check-label" th:for="${#ids.prev('mtpType')}" th:text="${model.getLabel()}"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row my-4">
+            <div class="col col-md-6">
+                <div class="form-outline">
+                    <input type="number" th:field="*{repeatNumber}" class="form-control" min="-1"/>
+                    <label class="form-label" th:for="*{repeatNumber}">Repeat number</label>
+                </div>
+                <div id="text-repeat-number" class="form-text">
+                    The value -1 refers to nullFlavor=NI
                 </div>
             </div>
         </div>
@@ -38,54 +50,50 @@
             <div class="row my-4">
                 <div class="col">
                     <div class="form-outline">
-                        <input type="date" th:field="*{start_date}" class="form-control"/>
-                        <label class="form-label" th:for="*{start_date}">Start Date (optional)</label>
+                        <input type="date" th:field="*{startDate}" class="form-control"/>
+                        <label class="form-label" th:for="*{startDate}">Start Date (optional)</label>
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-outline">
-                        <input type="date" th:field="*{stop_date}" class="form-control"/>
-                        <label class="form-label" th:for="*{stop_date}">Stop Date (optional)</label>
+                        <input type="date" th:field="*{stopDate}" class="form-control"/>
+                        <label class="form-label" th:for="*{stopDate}">Stop Date (optional)</label>
                     </div>
                 </div>
             </div>
 
             <div class="row my-4">
+
                 <div class="col">
-                    <div class="form-outline">
-                        <input type="number" th:field="*{repeat_number}" class="form-control" min="-1"/>
-                        <label class="form-label" th:for="*{repeat_number}">Repeat number</label>
-                    </div>
-                    <div id="text-repeat-number" class="form-text">
-                        The value -1 refers to nullFlavor=NI
-                    </div>
-                </div>
-                <div class="col">
-                    <h6 th:for="*{route_code}">Route code</h6>
-                    <div class="">
-                        <select th:field="*{route_code}" class="" >
+                    <div class="select">
+                        <select th:field="*{routeCode}" class="select-text" >
                             <option th:each="model : ${routeOfAdministrationAmbu}" th:value="${model}" th:text="${model.getDisplayName()}">
                             </option>
                         </select>
+                        <label class="select-label" th:for="*{routeCode}">Route code</label>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="select">
+                        <select th:field="*{doseQuantityUnit}" class="select-text" >
+                            <option th:each="model : ${regularUnitCodeAmbu}" th:value="${model}" th:text="${model.getDisplayName()}">
+                            </option>
+                        </select>
+                        <label class="select-label" th:for="*{doseQuantityUnit}">Dose quantity unit</label>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-6 col-xs-12 my-4">
-                <h6>Dose quantity unit</h6>
-                <select th:field="*{dose_quantity_unit}" class="" >
-                    <option th:each="model : ${regularUnitCodeAmbu}" th:value="${model}" th:text="${model.getDisplayName()}">
-                    </option>
-                </select>
-            </div>
+
 
             <div class="row">
-                <h6>Dose quantity</h6>
+                <h6 class="my-2">Dose quantity</h6>
 
-                <div class="col" th:each="dose : ${mtp.getDoses_quantity()}">
+                <div class="col" th:each="dose : ${mtp.getDosesQuantity()}">
                     <div class="form-outline">
-                        <input type="text" th:value="${dose.value}" th:field="${mtp.doses_quantity[__${dose.key}__]}" class="form-control"/>
-                        <label class="form-label" th:for="${mtp.doses_quantity[__${dose.key}__]}" th:text="${dose.key}"></label>
+                        <input type="text" th:value="${dose.value}" th:field="${mtp.dosesQuantity[__${dose.key}__]}" class="form-control"/>
+                        <label class="form-label" th:for="${mtp.dosesQuantity[__${dose.key}__]}" th:text="${dose.key.displayName}"></label>
                     </div>
                 </div>
 
@@ -93,22 +101,22 @@
         </div>
 
         <div class="form-outline my-4" id="narrative-instructions-inputs" style="display: none;">
-            <textarea class="form-control" th:field="*{narrative_instructions}" rows="4"></textarea>
-            <label class="form-label" th:for="*{narrative_instructions}">Narrative instructions</label>
+            <textarea class="form-control" th:field="*{narrativeInstructions}" rows="4"></textarea>
+            <label class="form-label" th:for="*{narrativeInstructions}">Narrative instructions</label>
         </div>
 
         <div class="row my-4">
             <div class="col text-center">
                 <div class="form-check form-check-inline" th:each="model : ${T(ch.hug.mtpgenerator.models.enums.ProductCodeType).values()}">
-                    <input class="form-check-input" type="radio" th:field="*{product_code_type}" th:value="${model}"/>
-                    <label class="form-check-label" th:for="${#ids.prev('product_code_type')}" th:text="${model}"></label>
+                    <input class="form-check-input" type="radio" th:field="*{productCodeType}" th:value="${model}"/>
+                    <label class="form-check-label" th:for="${#ids.prev('productCodeType')}" th:text="${model}"></label>
                 </div>
             </div>
 
             <div class="col">
                 <div class="form-outline">
-                    <input type="text" th:field="*{product_code}" class="form-control" required/>
-                    <label class="form-label" th:for="*{product_code}">Code</label>
+                    <input type="text" th:field="*{productCode}" class="form-control" required/>
+                    <label class="form-label" th:for="*{productCode}">Code</label>
                 </div>
             </div>
         </div>
@@ -116,24 +124,24 @@
         <div class="row my-4">
             <div class="col">
                 <div class="form-outline">
-                    <input type="text" th:field="*{product_name}" class="form-control" required/>
-                    <label class="form-label">Product name</label>
+                    <input type="text" th:field="*{productName}" class="form-control" required/>
+                    <label class="form-label" th:for="*{productName}">Product name</label>
                 </div>
             </div>
             <div class="col">
-                <div class="">
-                    <h6>Form code</h6>
-                    <select th:field="*{form_code}" class="select" >
+                <div class="select">
+                    <select th:field="*{formCode}" class="select-text" >
                         <option th:each="model : ${pharmaceuticalDoseFormEdqm}" th:value="${model}" th:text="${model.getDisplayName()}">
                         </option>
                     </select>
+                    <label class="select-label" th:for="*{formCode}">Form code</label>
                 </div>
             </div>
         </div>
 
         <div class="form-outline my-4">
-            <textarea class="form-control" th:field="*{fulfillment_instruction}" rows="4"></textarea>
-            <label class="form-label" th:for="*{fulfillment_instruction}">Fulfillment instruction (optional)</label>
+            <textarea class="form-control" th:field="*{fulfillmentInstruction}" rows="4"></textarea>
+            <label class="form-label" th:for="*{fulfillmentInstruction}">Fulfillment instruction (optional)</label>
         </div>
 
         <div class="form-outline my-4">
@@ -144,14 +152,14 @@
         <div class="row my-4">
             <div class="col">
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" th:field="*{in_reserve}" />
-                    <label class="form-check-label" th:for="*{in_reserve}">In reserve</label>
+                    <input class="form-check-input" type="checkbox" role="switch" th:field="*{inReserve}" />
+                    <label class="form-check-label" th:for="*{inReserve}">In reserve</label>
                 </div>
             </div>
             <div class="col">
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" th:field="*{substitution_authorized}"/>
-                    <label class="form-check-label" th:for="*{substitution_authorized}">Substitution authorized</label>
+                    <input class="form-check-input" type="checkbox" role="switch" th:field="*{substitutionAuthorized}"/>
+                    <label class="form-check-label" th:for="*{substitutionAuthorized}">Substitution authorized</label>
                 </div>
             </div>
         </div>
@@ -159,8 +167,8 @@
         <div class="row my-4">
             <div class="col">
                 <div class="form-outline">
-                    <input type="text" th:field="*{amount_to_dispense}" class="form-control"/>
-                    <label class="form-label" th:for="*{amount_to_dispense}">Amount to dispense (optional)</label>
+                    <input type="text" th:field="*{amountToDispense}" class="form-control"/>
+                    <label class="form-label" th:for="*{amountToDispense}">Amount to dispense (optional)</label>
                 </div>
             </div>
         </div>

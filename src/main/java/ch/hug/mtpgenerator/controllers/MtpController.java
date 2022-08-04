@@ -6,13 +6,10 @@ import org.husky.emed.ch.cda.digesters.CceDocumentDigester;
 import org.husky.emed.ch.enums.PharmaceuticalDoseFormEdqm;
 import org.husky.emed.ch.enums.RegularUnitCodeAmbu;
 import org.husky.emed.ch.enums.RouteOfAdministrationAmbu;
-import org.husky.emed.ch.errors.InvalidEmedContentException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-
-import java.util.List;
 
 
 @Controller
@@ -22,7 +19,7 @@ public class MtpController {
     public String createMTP(@ModelAttribute MtpModel mtp, final Model model) {
         try {
             OnDemandMedicationTreatmentPlanAssembler onDemandMedicationTreatmentPlanAssembler =
-                    new OnDemandMedicationTreatmentPlanAssembler(new CceDocumentDigester());
+                    new OnDemandMedicationTreatmentPlanAssembler();
             String cdaXmlMtp = onDemandMedicationTreatmentPlanAssembler.assemble(mtp);
 
             model.addAttribute("cdaXmlMtp", cdaXmlMtp);
