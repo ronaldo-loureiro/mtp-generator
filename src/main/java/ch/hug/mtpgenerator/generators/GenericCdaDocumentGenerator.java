@@ -6,6 +6,7 @@ import org.husky.common.ch.enums.ConfidentialityCode;
 import org.husky.common.ch.enums.ParticipationFunction;
 import org.husky.common.enums.AdministrativeGender;
 import org.husky.common.enums.CodeSystems;
+import org.husky.common.enums.LanguageCode;
 import org.husky.common.enums.NullFlavor;
 import org.husky.common.hl7cdar2.*;
 import org.husky.common.utils.time.DateTimes;
@@ -56,7 +57,8 @@ public abstract class GenericCdaDocumentGenerator<T extends POCDMT000040Clinical
                                                final UUID uniqueId,
                                                final CE documentCode,
                                                final String documentTitle,
-                                               final String patientMpiPid) {
+                                               final String patientMpiPid,
+                                               final LanguageCode languageCode) {
         final var documentId = new II(uniqueId.toString());
         final var author = this.author(Instant.now());
         final var custodian = this.custodian();
@@ -73,10 +75,10 @@ public abstract class GenericCdaDocumentGenerator<T extends POCDMT000040Clinical
         document.getRealmCode().add(new CS("CHE"));
         document.setId(documentId);
         document.setCode(documentCode);
-        document.setTitle(new ST(documentTitle, "fr-CH"));
+        document.setTitle(new ST(documentTitle, languageCode.getCodeValue()));
         document.setEffectiveTime(DateTimes.toDatetimeTs(Instant.now()));
-        document.setConfidentialityCode(ConfidentialityCode.NORMALLY_ACCESSIBLE.getCE());
-        document.setLanguageCode(new CS("fr-CH"));
+        document.setConfidentialityCode(ConfidentialityCode.NORMALLY_ACCESSIBLE.getCE(languageCode));
+        document.setLanguageCode(new CS(languageCode.getCodeValue()));
         document.setSetId(documentId);
         document.setVersionNumber(new INT(1));
         document.getRecordTarget().add(recordTarget);

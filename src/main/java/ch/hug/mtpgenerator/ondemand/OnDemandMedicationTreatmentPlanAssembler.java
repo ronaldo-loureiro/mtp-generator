@@ -65,13 +65,14 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
             documentUniqueId,
             new DocumentCodeMedicationTreatmentPlan(),
             "Décision thérapeutique relative à la médication",
-            "2.998"
+            "2.998",
+            medicationTreatment.getDocumentLanguageCode()
         );
 
         final var section = new MedicationTreatmenPlanSectionContentModule();
         this.initializeCceDocumentBody(document, section);
         section.setId(new II(documentUniqueId.toString()));
-        section.setTitle(new ST("Plan de traitement médicamenteux", "fr-CH"));
+        section.setTitle(new ST("Plan de traitement médicamenteux", medicationTreatment.getDocumentLanguageCode().getCodeValue()));
 
         // Generate narrative text
         final var narrativeText = new StrucDocText();
@@ -139,7 +140,7 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
             substanceAdministration.getEffectiveTime().add(ivlts);
 
             if (medicationTreatment.getRouteCode() != null) {
-                substanceAdministration.setRouteCode(medicationTreatment.getRouteCode().getCE());
+                substanceAdministration.setRouteCode(medicationTreatment.getRouteCode().getCE(medicationTreatment.getDocumentLanguageCode()));
             }
         }
 
@@ -242,17 +243,31 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
         }
 
         // Fulfilment instructions
-        if (!medicationTreatment.getFulfillmentInstruction().isEmpty()) {
+        if (!medicationTreatment.getFulfillmentInstructions().isEmpty()) {
             final var erFulfilmentInstructions = new POCDMT000040EntryRelationship();
             erFulfilmentInstructions.setTypeCode(XActRelationshipEntryRelationship.SUBJ);
             erFulfilmentInstructions.setInversionInd(true);
 
             final var actFulfilmentInstructions = new IhemedicationFulFillmentInstructions();
-            actFulfilmentInstructions.setText(new ED(medicationTreatment.getFulfillmentInstruction(), new TEL(narrativeTextId)));
+            actFulfilmentInstructions.setText(new ED(medicationTreatment.getFulfillmentInstructions(), new TEL(narrativeTextId)));
             actFulfilmentInstructions.setStatusCode(new CS("completed"));
 
             erFulfilmentInstructions.setAct(actFulfilmentInstructions);
             substanceAdministration.getEntryRelationship().add(erFulfilmentInstructions);
+        }
+
+        // Patient medication instructions
+        if (!medicationTreatment.getPatientInstructions().isEmpty()) {
+            final var erPatientInstructions = new POCDMT000040EntryRelationship();
+            erPatientInstructions.setTypeCode(XActRelationshipEntryRelationship.SUBJ);
+            erPatientInstructions.setInversionInd(true);
+
+            final var actPatientInstructions = new IhepatientMedicationInstructions();
+            actPatientInstructions.setText(new ED(medicationTreatment.getPatientInstructions(), new TEL(narrativeTextId)));
+            actPatientInstructions.setStatusCode(new CS("completed"));
+
+            erPatientInstructions.setAct(actPatientInstructions);
+            substanceAdministration.getEntryRelationship().add(erPatientInstructions);
         }
 
         // Quantity to dispense
@@ -268,8 +283,8 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
             substanceAdministration.getEntryRelationship().add(qdEr);
         }
 
-        substanceAdministration.getEntryRelationship().add(createSubstitutionPermissions(medicationTreatment.isSubstitutionAuthorized()));
-        substanceAdministration.getEntryRelationship().add(createInReserve(medicationTreatment.isInReserve()));
+        substanceAdministration.getEntryRelationship().add(createSubstitutionPermissions(medicationTreatment));
+        substanceAdministration.getEntryRelationship().add(createInReserve(medicationTreatment));
 
         return substanceAdministration;
     }
@@ -307,7 +322,7 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
         }
 
         if (medicationTreatment.getFormCode() != null) {
-            manufacturedMaterial.setPharmFormCode(medicationTreatment.getFormCode().getCE());
+            manufacturedMaterial.setPharmFormCode(medicationTreatment.getFormCode().getCE(medicationTreatment.getDocumentLanguageCode()));
         }
 
         final var manufacturedProduct = new POCDMT000040ManufacturedProduct();
@@ -334,11 +349,11 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
         return consumable;
     }
 
-    protected POCDMT000040EntryRelationship createSubstitutionPermissions(boolean isSubstitutionAuthorized) {
-        final ActSubstanceAdminSubstitutionCode substitutionPermission = isSubstitutionAuthorized ?
+    protected POCDMT000040EntryRelationship createSubstitutionPermissions(MtpModel medicationTreatment) {
+        final ActSubstanceAdminSubstitutionCode substitutionPermission = medicationTreatment.isSubstitutionAuthorized() ?
                 ActSubstanceAdminSubstitutionCode.EQUIVALENT_L1 : ActSubstanceAdminSubstitutionCode.NONE_L1;
         final POCDMT000040Act spAct = new IhesubstitutionPermissionContentModule();
-        spAct.setCode(substitutionPermission.getCD());
+        spAct.setCode(substitutionPermission.getCD(medicationTreatment.getDocumentLanguageCode()));
         spAct.setStatusCode(new CS("completed"));
         final var spEr = new POCDMT000040EntryRelationship();
         spEr.setTypeCode(XActRelationshipEntryRelationship.COMP);
@@ -346,9 +361,9 @@ public class OnDemandMedicationTreatmentPlanAssembler extends GenericCdaDocument
         return spEr;
     }
 
-    protected POCDMT000040EntryRelationship createInReserve(boolean isInReserve) {
-        final var inReserve = isInReserve ? MedicationDosageQualifier.AS_REQUIRED_QUALIFIER_VALUE :
-                MedicationDosageQualifier.REGULAR_QUALIFIER_VALUE;
+    protected POCDMT000040EntryRelationship createInReserve(MtpModel medicationTreatment) {
+        final var inReserve = medicationTreatment.isInReserve() ?
+                MedicationDosageQualifier.AS_REQUIRED_QUALIFIER_VALUE : MedicationDosageQualifier.REGULAR_QUALIFIER_VALUE;
         final var irAct = new MedicationInReserveEntryContentModule();
         irAct.setStatusCode(MedicationInReserveEntryContentModule.getPredefinedStatusCodeCompleted());
         irAct.setCode(inReserve.getCD());

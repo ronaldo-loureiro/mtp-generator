@@ -67,7 +67,7 @@
                 <div class="col">
                     <div class="select">
                         <select th:field="*{routeCode}" class="select-text" >
-                            <option th:each="model : ${routeOfAdministrationAmbu}" th:value="${model}" th:text="${model.getDisplayName()}">
+                            <option th:each="model : ${routeOfAdministrationAmbu}" th:value="${model}" th:text="${model.getDisplayName(languageCode)}">
                             </option>
                         </select>
                         <label class="select-label" th:for="*{routeCode}">Route code</label>
@@ -77,7 +77,7 @@
                 <div class="col">
                     <div class="select">
                         <select th:field="*{doseQuantityUnit}" class="select-text" >
-                            <option th:each="model : ${regularUnitCodeAmbu}" th:value="${model}" th:text="${model.getDisplayName()}">
+                            <option th:each="model : ${regularUnitCodeAmbu}" th:value="${model}" th:text="${model.getDisplayName(languageCode)}">
                             </option>
                         </select>
                         <label class="select-label" th:for="*{doseQuantityUnit}">Dose quantity unit</label>
@@ -93,7 +93,7 @@
                 <div class="col" th:each="dose : ${mtp.getDosesQuantity()}">
                     <div class="form-outline">
                         <input type="text" th:value="${dose.value}" th:field="${mtp.dosesQuantity[__${dose.key}__]}" class="form-control"/>
-                        <label class="form-label" th:for="${mtp.dosesQuantity[__${dose.key}__]}" th:text="${dose.key.displayName}"></label>
+                        <label class="form-label" th:for="${mtp.dosesQuantity[__${dose.key}__]}" th:text="${dose.key.getDisplayName()}"></label>
                     </div>
                 </div>
 
@@ -131,7 +131,7 @@
             <div class="col">
                 <div class="select">
                     <select th:field="*{formCode}" class="select-text" >
-                        <option th:each="model : ${pharmaceuticalDoseFormEdqm}" th:value="${model}" th:text="${model.getDisplayName()}">
+                        <option th:each="model : ${pharmaceuticalDoseFormEdqm}" th:value="${model}" th:text="${model.getDisplayName(languageCode)}">
                         </option>
                     </select>
                     <label class="select-label" th:for="*{formCode}">Form code</label>
@@ -140,13 +140,18 @@
         </div>
 
         <div class="form-outline my-4">
-            <textarea class="form-control" th:field="*{fulfillmentInstruction}" rows="4"></textarea>
-            <label class="form-label" th:for="*{fulfillmentInstruction}">Fulfillment instruction (optional)</label>
+            <textarea class="form-control" th:field="*{fulfillmentInstructions}" rows="3"></textarea>
+            <label class="form-label" th:for="*{fulfillmentInstructions}">Fulfillment instructions (optional)</label>
         </div>
 
         <div class="form-outline my-4">
-            <textarea class="form-control" th:field="*{reason}" rows="4"></textarea>
+            <textarea class="form-control" th:field="*{reason}" rows="3"></textarea>
             <label class="form-label" th:for="*{reason}">Reason (optional)</label>
+        </div>
+
+        <div class="form-outline my-4">
+            <textarea class="form-control" th:field="*{patientInstructions}" rows="3"></textarea>
+            <label class="form-label" th:for="*{patientInstructions}">Patient instructions (optional)</label>
         </div>
 
         <div class="row my-4">
