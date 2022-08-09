@@ -46,14 +46,15 @@
 
 /* LABEL ======================================= */
 .select-label {
+  font-family: "Roboto", sans-serif;
   color: rgba(0,0,0, 0.6);
-  font-size: 18px;
+  font-size: 12pt;
   font-weight: normal;
   position: absolute;
   pointer-events: none;
-  left: 10px;
-  top: 10px;
-  transition: 0.2s ease all;
+  left: 8px;
+  top: 6px;
+  transition: 0.2s linear all;
   padding: 0 4px;
   background: white;
 }
@@ -61,7 +62,7 @@
 /* active state */
 .select-text:focus ~ .select-label, .select-text:valid ~ .select-label {
   top: -10px;
-  transition: 0.2s ease all;
+  transition: 0.2s linear all;
   font-size: 10pt;
 }
 

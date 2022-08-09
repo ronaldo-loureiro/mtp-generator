@@ -28,7 +28,7 @@
             </div>
             <div class="col text-center">
                 <div class="form-check form-check-inline" th:each="model : ${T(ch.hug.mtpgenerator.models.enums.MtpType).values()}">
-                    <input class="form-check-input" type="radio" th:field="*{mtpType}" th:value="${model}" th:onclick="'changeMtpType(this.value);'"/>
+                    <input class="form-check-input" type="radio" th:field="*{mtpType}" th:value="${model}" th:onclick="'changeMtpType(this.value);'" required/>
                     <label class="form-check-label" th:for="${#ids.prev('mtpType')}" th:text="${model.getLabel()}"></label>
                 </div>
             </div>
@@ -37,7 +37,7 @@
         <div class="row my-4">
             <div class="col col-md-6">
                 <div class="form-outline">
-                    <input type="number" th:field="*{repeatNumber}" class="form-control" min="-1"/>
+                    <input type="number" th:field="*{repeatNumber}" class="form-control" min="-1" required/>
                     <label class="form-label" th:for="*{repeatNumber}">Repeat number</label>
                 </div>
                 <div id="text-repeat-number" class="form-text">
@@ -50,13 +50,13 @@
             <div class="row my-4">
                 <div class="col">
                     <div class="form-outline">
-                        <input type="date" th:field="*{startDate}" class="form-control"/>
+                        <input type="date" th:field="*{startDate}" class="form-control" data-optional="true"/>
                         <label class="form-label" th:for="*{startDate}">Start Date (optional)</label>
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-outline">
-                        <input type="date" th:field="*{stopDate}" class="form-control"/>
+                        <input type="date" th:field="*{stopDate}" class="form-control" data-optional="true"/>
                         <label class="form-label" th:for="*{stopDate}">Stop Date (optional)</label>
                     </div>
                 </div>
@@ -66,33 +66,31 @@
 
                 <div class="col">
                     <div class="select">
-                        <select th:field="*{routeCode}" class="select-text" >
-                            <option th:each="model : ${routeOfAdministrationAmbu}" th:value="${model}" th:text="${model.getDisplayName(languageCode)}">
-                            </option>
-                        </select>
-                        <label class="select-label" th:for="*{routeCode}">Route code</label>
+                        <input type="text" list="routeOfAdministrationAmbu" th:field="*{routeCode}" class="select-text" data-optional="true">
+                        <label class="select-label" th:for="*{routeCode}">Route code (optional)</label>
+                        <datalist id="routeOfAdministrationAmbu">
+                            <option th:each="model : ${routeOfAdministrationAmbu}" th:value="${model}" th:text="${model.getDisplayName(languageCode)}"></option>
+                        </datalist>
                     </div>
                 </div>
 
                 <div class="col">
                     <div class="select">
-                        <select th:field="*{doseQuantityUnit}" class="select-text" >
-                            <option th:each="model : ${regularUnitCodeAmbu}" th:value="${model}" th:text="${model.getDisplayName(languageCode)}">
-                            </option>
-                        </select>
+                        <input list="regularUnitCodeAmbu" th:field="*{doseQuantityUnit}" class="select-text" required>
                         <label class="select-label" th:for="*{doseQuantityUnit}">Dose quantity unit</label>
+                        <datalist id="regularUnitCodeAmbu">
+                            <option th:each="model : ${regularUnitCodeAmbu}" th:value="${model}" th:text="${model.getDisplayName(languageCode)}"></option>
+                        </datalist>
                     </div>
                 </div>
             </div>
-
-
 
             <div class="row">
                 <h6 class="my-2">Dose quantity</h6>
 
                 <div class="col" th:each="dose : ${mtp.getDosesQuantity()}">
                     <div class="form-outline">
-                        <input type="text" th:value="${dose.value}" th:field="${mtp.dosesQuantity[__${dose.key}__]}" class="form-control"/>
+                        <input type="text" th:value="${dose.value}" th:field="${mtp.dosesQuantity[__${dose.key}__]}" class="form-control" required/>
                         <label class="form-label" th:for="${mtp.dosesQuantity[__${dose.key}__]}" th:text="${dose.key.getDisplayName()}"></label>
                     </div>
                 </div>
@@ -108,7 +106,7 @@
         <div class="row my-4">
             <div class="col text-center">
                 <div class="form-check form-check-inline" th:each="model : ${T(ch.hug.mtpgenerator.models.enums.ProductCodeType).values()}">
-                    <input class="form-check-input" type="radio" th:field="*{productCodeType}" th:value="${model}"/>
+                    <input class="form-check-input" type="radio" th:field="*{productCodeType}" th:value="${model}" required/>
                     <label class="form-check-label" th:for="${#ids.prev('productCodeType')}" th:text="${model}"></label>
                 </div>
             </div>
@@ -130,27 +128,29 @@
             </div>
             <div class="col">
                 <div class="select">
-                    <select th:field="*{formCode}" class="select-text" >
-                        <option th:each="model : ${pharmaceuticalDoseFormEdqm}" th:value="${model}" th:text="${model.getDisplayName(languageCode)}">
-                        </option>
-                    </select>
-                    <label class="select-label" th:for="*{formCode}">Form code</label>
+                    <input list="pharmaceuticalDoseFormEdqm" th:field="*{formCode}" class="select-text" data-optional="true">
+                    <label class="select-label" th:for="*{formCode}">Form code (optional) </label>
+                    <datalist id="pharmaceuticalDoseFormEdqm">
+                        <option th:each="model : ${pharmaceuticalDoseFormEdqm}" th:value="${model}"
+                                th:text="${model.getDisplayName(languageCode)}"></option>
+                    </datalist>
                 </div>
             </div>
+
         </div>
 
         <div class="form-outline my-4">
-            <textarea class="form-control" th:field="*{fulfillmentInstructions}" rows="3"></textarea>
+            <textarea class="form-control" th:field="*{fulfillmentInstructions}" rows="3" data-optional="true"></textarea>
             <label class="form-label" th:for="*{fulfillmentInstructions}">Fulfillment instructions (optional)</label>
         </div>
 
         <div class="form-outline my-4">
-            <textarea class="form-control" th:field="*{reason}" rows="3"></textarea>
+            <textarea class="form-control" th:field="*{reason}" rows="3" data-optional="true"></textarea>
             <label class="form-label" th:for="*{reason}">Reason (optional)</label>
         </div>
 
         <div class="form-outline my-4">
-            <textarea class="form-control" th:field="*{patientInstructions}" rows="3"></textarea>
+            <textarea class="form-control" th:field="*{patientInstructions}" rows="3" data-optional="true"></textarea>
             <label class="form-label" th:for="*{patientInstructions}">Patient instructions (optional)</label>
         </div>
 
@@ -172,7 +172,7 @@
         <div class="row my-4">
             <div class="col">
                 <div class="form-outline">
-                    <input type="text" th:field="*{amountToDispense}" class="form-control"/>
+                    <input type="text" th:field="*{amountToDispense}" class="form-control" data-optional="true"/>
                     <label class="form-label" th:for="*{amountToDispense}">Amount to dispense (optional)</label>
                 </div>
             </div>
